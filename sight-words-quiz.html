@@ -58,7 +58,7 @@
     letter-spacing: -0.5px;
   }
 
-  /* Level card completion star */
+  /* Level card completion */
   .level-card .done-star {
     display: none;
     position: absolute;
@@ -66,23 +66,23 @@
     font-size: 22px;
     filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));
   }
-  .level-card.done .done-star { display: block; }
-  .level-card.done { opacity: 0.7; }
-  .level-card.done::after {
-    content: 'Done today!';
+  .level-card .done-overlay {
+    display: none;
     position: absolute;
     inset: 0;
-    display: flex;
+    background: rgba(0,0,0,0.45);
+    border-radius: 16px;
     align-items: center;
     justify-content: center;
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 900;
     letter-spacing: 1px;
-    background: rgba(0,0,0,0.35);
-    border-radius: 16px;
     color: var(--yellow);
     pointer-events: none;
   }
+  .level-card.done { cursor: default; }
+  .level-card.done .done-star { display: block; }
+  .level-card.done .done-overlay { display: flex; }
 
   /* Nav tabs */
   .tabs {
@@ -384,6 +384,7 @@
         <h2>Easy</h2>
         <p>Getting started</p>
         <div class="done-star">⭐</div>
+        <div class="done-overlay">⭐ Done today!</div>
       </div>
       <div class="level-card l2" id="card-2" onclick="startQuiz(2)">
         <div class="word-count" id="count-2"></div>
@@ -391,6 +392,7 @@
         <h2>Medium</h2>
         <p>Building up</p>
         <div class="done-star">⭐</div>
+        <div class="done-overlay">⭐ Done today!</div>
       </div>
       <div class="level-card l3" id="card-3" onclick="startQuiz(3)">
         <div class="word-count" id="count-3"></div>
@@ -398,6 +400,7 @@
         <h2>Hard</h2>
         <p>Getting tricky</p>
         <div class="done-star">⭐</div>
+        <div class="done-overlay">⭐ Done today!</div>
       </div>
       <div class="level-card l4" id="card-4" onclick="startQuiz(4)">
         <div class="word-count" id="count-4"></div>
@@ -405,6 +408,7 @@
         <h2>Expert</h2>
         <p>Word champion!</p>
         <div class="done-star">⭐</div>
+        <div class="done-overlay">⭐ Done today!</div>
       </div>
     </div>
   </div>
