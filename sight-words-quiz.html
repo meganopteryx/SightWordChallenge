@@ -213,30 +213,6 @@
     text-shadow: 0 4px 0 #8a6800;
   }
 
-  /* Parent judgment buttons */
-  .judge-btns {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    margin-bottom: 20px;
-  }
-
-  .judge-btn {
-    padding: 20px 12px;
-    border-radius: 18px;
-    border: 3px solid;
-    font-family: 'Nunito', sans-serif;
-    font-size: 20px;
-    font-weight: 900;
-    cursor: pointer;
-    transition: transform 0.12s, filter 0.12s;
-    letter-spacing: 0.5px;
-  }
-  .judge-btn:hover { transform: translateY(-3px); filter: brightness(1.15); }
-  .judge-btn:active { transform: translateY(1px); }
-  .judge-btn.yes { background: rgba(76,175,80,0.2); border-color: var(--green); color: #a5d6a7; }
-  .judge-btn.no  { background: rgba(224,92,92,0.2); border-color: var(--red);   color: #ef9a9a; }
-
   .next-btn {
     display: block;
     width: 100%;
@@ -424,11 +400,7 @@
       <div class="word-display" id="wordDisplay"></div>
     </div>
 
-    <div class="judge-btns">
-      <button class="judge-btn no"  onclick="judge(false)">❌ Not yet</button>
-      <button class="judge-btn yes" onclick="judge(true)">✅ Got it!</button>
-    </div>
-    <button class="next-btn" id="nextBtn" onclick="nextQuestion()" disabled>Next Word →</button>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Word →</button>
   </div>
 
   <!-- COMPLETE SCREEN -->
@@ -480,7 +452,6 @@ let totalStars = 0;
 let currentLevel = 1;
 let quizWords = [];
 let quizIndex = 0;
-let quizCorrect = 0;
 
 let fcLevel = 0;
 let fcPool = [];
@@ -527,9 +498,8 @@ function showScreen(name) {
 // ── QUIZ ──────────────────────────────────────────────────────
 function startQuiz(level) {
   currentLevel = level;
-  quizWords = shuffle(WORDS[level]);
+  quizWords = shuffle(WORDS[level]).slice(0, 20);
   quizIndex = 0;
-  quizCorrect = 0;
   showScreen('quiz');
   showQuestion();
 }
@@ -541,22 +511,12 @@ function showQuestion() {
   document.getElementById('progressFill').style.width = `${(quizIndex / total) * 100}%`;
   document.getElementById('progressLabel').textContent = `${quizIndex + 1} of ${total}`;
   document.getElementById('wordDisplay').textContent = word;
-  document.getElementById('nextBtn').disabled = true;
-
-  document.querySelectorAll('.judge-btn').forEach(b => b.disabled = false);
-}
-
-function judge(correct) {
-  if (correct) {
-    quizCorrect++;
-    totalStars++;
-    updateStars();
-  }
-  document.querySelectorAll('.judge-btn').forEach(b => b.disabled = true);
-  document.getElementById('nextBtn').disabled = false;
 }
 
 function nextQuestion() {
+  quizCorrect++;
+  totalStars++;
+  updateStars();
   quizIndex++;
   if (quizIndex >= quizWords.length) {
     showComplete();
@@ -567,16 +527,10 @@ function nextQuestion() {
 
 function showComplete() {
   const total = quizWords.length;
-  const pct = Math.round((quizCorrect / total) * 100);
-  let emoji = '🌱', title = 'Good try!';
-  if (pct >= 90) { emoji = '🏆'; title = 'Word Champion!'; }
-  else if (pct >= 70) { emoji = '🌟'; title = 'Great job!'; }
-  else if (pct >= 50) { emoji = '👍'; title = 'Nice work!'; }
-
-  document.getElementById('completeEmoji').textContent = emoji;
-  document.getElementById('completeTitle').textContent = title;
-  document.getElementById('completeScore').innerHTML = `${quizCorrect}<span> / ${total}</span>`;
-  document.getElementById('completeMsg').textContent = `${pct}% correct — you earned ${quizCorrect} star${quizCorrect !== 1 ? 's' : ''}!`;
+  document.getElementById('completeEmoji').textContent = '🏆';
+  document.getElementById('completeTitle').textContent = 'You did it!';
+  document.getElementById('completeScore').innerHTML = `+15<span> minutes!</span>`;
+  document.getElementById('completeMsg').textContent = `${total} words crushed — screen time earned! 🎉`;
   showScreen('complete');
 }
 
