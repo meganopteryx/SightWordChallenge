@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sight Words Adventure!</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #1a2744;
+    --yellow: #FFD93D;
+    --blue: #6EC6F5;
+    --white: #F0F8FF;
+    --green: #4CAF50;
+    --red: #E05C5C;
+    --purple: #9B6FD4;
+    --orange: #FF8C42;
+  }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--navy);
+    color: var(--white);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Stars background */
+  body::before {
+    content: '★ ✦ ★ ✦ ★ ✦ ★ ✦ ★ ✦ ★ ✦ ★ ✦ ★ ✦ ★';
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    font-size: 14px;
+    color: rgba(255,217,61,0.12);
+    letter-spacing: 18px;
+    line-height: 2.4;
+    pointer-events: none;
+    z-index: 0;
+    word-break: break-all;
+  }
+
+  header {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 24px 16px 8px;
+  }
+
+  h1 {
+    font-size: clamp(28px, 6vw, 48px);
+    font-weight: 900;
+    color: var(--yellow);
+    text-shadow: 0 3px 0 #b89820;
+    letter-spacing: -0.5px;
+  }
+
+  .stars-earned {
+    font-size: 22px;
+    margin-top: 4px;
+    letter-spacing: 2px;
+    min-height: 30px;
+  }
+
+  /* Nav tabs */
+  .tabs {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    gap: 12px;
+    margin: 16px 0 24px;
+    padding: 0 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .tab-btn {
+    padding: 10px 22px;
+    border-radius: 999px;
+    border: 3px solid transparent;
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    background: rgba(255,255,255,0.08);
+    color: var(--white);
+    transition: all 0.15s;
+  }
+  .tab-btn:hover { background: rgba(255,255,255,0.15); }
+  .tab-btn.active {
+    background: var(--yellow);
+    color: var(--navy);
+    border-color: #b89820;
+  }
+
+  /* Main container */
+  main {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 680px;
+    padding: 0 16px 40px;
+  }
+
+  /* Screen switching */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── LEVEL SELECT ── */
+  .level-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .level-card {
+    border-radius: 20px;
+    padding: 24px 16px;
+    text-align: center;
+    cursor: pointer;
+    border: 4px solid transparent;
+    transition: transform 0.15s, box-shadow 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .level-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+  .level-card.l1 { background: linear-gradient(135deg, #4CAF50, #2e7d32); border-color: #81c784; }
+  .level-card.l2 { background: linear-gradient(135deg, #2196F3, #1565c0); border-color: #64b5f6; }
+  .level-card.l3 { background: linear-gradient(135deg, #9B6FD4, #6a1b9a); border-color: #ce93d8; }
+  .level-card.l4 { background: linear-gradient(135deg, #FF8C42, #e65100); border-color: #ffb74d; }
+
+  .level-card .badge {
+    display: inline-block;
+    font-size: 36px;
+    margin-bottom: 8px;
+  }
+  .level-card h2 { font-size: 20px; font-weight: 900; }
+  .level-card p { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+  .level-card .word-count {
+    position: absolute;
+    top: 10px; right: 12px;
+    font-size: 12px;
+    font-weight: 800;
+    background: rgba(0,0,0,0.25);
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+
+  /* ── QUIZ SCREEN ── */
+  .quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .back-btn {
+    background: rgba(255,255,255,0.1);
+    border: 2px solid rgba(255,255,255,0.2);
+    color: var(--white);
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .back-btn:hover { background: rgba(255,255,255,0.2); }
+
+  .progress-wrap {
+    flex: 1;
+    margin: 0 16px;
+  }
+  .progress-bar {
+    height: 12px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 999px;
+    transition: width 0.4s ease;
+  }
+  .progress-label {
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    margin-top: 4px;
+    opacity: 0.8;
+  }
+
+  .word-card {
+    background: rgba(255,255,255,0.06);
+    border: 3px solid rgba(255,255,255,0.12);
+    border-radius: 28px;
+    padding: 40px 24px;
+    text-align: center;
+    margin-bottom: 24px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .word-card.correct { border-color: var(--green); background: rgba(76,175,80,0.12); }
+  .word-card.wrong { border-color: var(--red); background: rgba(224,92,92,0.12); }
+
+  .word-display {
+    font-size: clamp(52px, 14vw, 96px);
+    font-weight: 900;
+    color: var(--yellow);
+    letter-spacing: 4px;
+    line-height: 1;
+    text-shadow: 0 4px 0 #8a6800;
+    transition: transform 0.15s;
+  }
+
+  .word-hint {
+    margin-top: 10px;
+    font-size: 15px;
+    opacity: 0.6;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  .answer-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .opt-btn {
+    padding: 18px 12px;
+    border-radius: 18px;
+    border: 3px solid rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.08);
+    color: var(--white);
+    font-family: 'Nunito', sans-serif;
+    font-size: clamp(22px, 5vw, 32px);
+    font-weight: 900;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 1px;
+  }
+  .opt-btn:hover:not(:disabled) {
+    background: rgba(255,255,255,0.16);
+    transform: scale(1.04);
+  }
+  .opt-btn.correct-ans {
+    background: rgba(76,175,80,0.3);
+    border-color: var(--green);
+    color: #a5d6a7;
+  }
+  .opt-btn.wrong-ans {
+    background: rgba(224,92,92,0.25);
+    border-color: var(--red);
+    color: #ef9a9a;
+  }
+  .opt-btn:disabled { cursor: default; }
+
+  .feedback-msg {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 900;
+    height: 36px;
+    margin-bottom: 16px;
+  }
+  .feedback-msg.good { color: var(--green); }
+  .feedback-msg.bad { color: var(--red); }
+
+  .next-btn {
+    display: block;
+    width: 100%;
+    padding: 18px;
+    border-radius: 18px;
+    border: none;
+    background: var(--yellow);
+    color: var(--navy);
+    font-family: 'Nunito', sans-serif;
+    font-size: 20px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    box-shadow: 0 5px 0 #8a6800;
+    letter-spacing: 0.5px;
+  }
+  .next-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #8a6800; }
+  .next-btn:active { transform: translateY(2px); box-shadow: 0 3px 0 #8a6800; }
+  .next-btn:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+  /* ── COMPLETE SCREEN ── */
+  .complete-card {
+    background: rgba(255,255,255,0.06);
+    border: 3px solid rgba(255,217,61,0.3);
+    border-radius: 28px;
+    padding: 40px 24px;
+    text-align: center;
+  }
+  .complete-card .big-emoji { font-size: 72px; display: block; margin-bottom: 16px; }
+  .complete-card h2 { font-size: 36px; font-weight: 900; color: var(--yellow); margin-bottom: 8px; }
+  .complete-card p { font-size: 18px; opacity: 0.85; margin-bottom: 24px; }
+  .score-display { font-size: 52px; font-weight: 900; color: var(--yellow); }
+  .score-display span { font-size: 22px; opacity: 0.7; }
+
+  /* ── FLASHCARD SCREEN ── */
+  .flashcard-level-select {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    justify-content: center;
+  }
+  .fc-level-btn {
+    padding: 8px 18px;
+    border-radius: 999px;
+    border: 2px solid rgba(255,255,255,0.25);
+    background: transparent;
+    color: var(--white);
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .fc-level-btn.active { background: var(--yellow); color: var(--navy); border-color: #b89820; }
+
+  .flashcard {
+    background: linear-gradient(135deg, rgba(110,198,245,0.12), rgba(155,111,212,0.12));
+    border: 4px solid rgba(110,198,245,0.3);
+    border-radius: 32px;
+    padding: 60px 24px;
+    text-align: center;
+    margin-bottom: 24px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+  }
+  .flashcard:hover { transform: scale(1.02); box-shadow: 0 12px 32px rgba(0,0,0,0.3); }
+  .flashcard:active { transform: scale(0.98); }
+
+  .flashcard .fc-word {
+    font-size: clamp(56px, 16vw, 104px);
+    font-weight: 900;
+    color: var(--blue);
+    letter-spacing: 6px;
+    text-shadow: 0 4px 0 #1a4a6a;
+    transition: opacity 0.15s;
+  }
+  .flashcard .fc-tap-hint {
+    font-size: 14px;
+    opacity: 0.5;
+    font-weight: 700;
+    margin-top: 16px;
+    letter-spacing: 1px;
+  }
+
+  .fc-controls {
+    display: flex;
+    gap: 14px;
+  }
+  .fc-btn {
+    flex: 1;
+    padding: 16px;
+    border-radius: 16px;
+    border: 3px solid;
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .fc-btn.got-it { background: rgba(76,175,80,0.15); border-color: var(--green); color: #a5d6a7; }
+  .fc-btn.try-again { background: rgba(255,140,66,0.15); border-color: var(--orange); color: #ffcc80; }
+  .fc-btn:hover { filter: brightness(1.2); transform: translateY(-2px); }
+
+  .fc-score {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 15px;
+    font-weight: 700;
+    opacity: 0.7;
+  }
+
+  /* Star pop animation */
+  @keyframes starPop {
+    0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+    60% { transform: scale(1.3) rotate(10deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+  .star-anim { display: inline-block; animation: starPop 0.35s ease forwards; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⭐ Sight Words Adventure!</h1>
+  <div class="stars-earned" id="starsDisplay"></div>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('levels')">📋 Quiz</button>
+  <button class="tab-btn" onclick="showTab('flashcards')">🃏 Flashcards</button>
+</div>
+
+<main>
+  <!-- LEVEL SELECT -->
+  <div class="screen active" id="screen-levels">
+    <div class="level-grid">
+      <div class="level-card l1" onclick="startQuiz(1)">
+        <div class="word-count" id="count-1"></div>
+        <div class="badge">🌱</div>
+        <h2>Level 1</h2>
+        <p>Getting started</p>
+      </div>
+      <div class="level-card l2" onclick="startQuiz(2)">
+        <div class="word-count" id="count-2"></div>
+        <div class="badge">🌟</div>
+        <h2>Level 2</h2>
+        <p>Building up</p>
+      </div>
+      <div class="level-card l3" onclick="startQuiz(3)">
+        <div class="word-count" id="count-3"></div>
+        <div class="badge">🚀</div>
+        <h2>Level 3</h2>
+        <p>Getting tricky</p>
+      </div>
+      <div class="level-card l4" onclick="startQuiz(4)">
+        <div class="word-count" id="count-4"></div>
+        <div class="badge">🏆</div>
+        <h2>Level 4</h2>
+        <p>Word champion!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div class="screen" id="screen-quiz">
+    <div class="quiz-header">
+      <button class="back-btn" onclick="goBack()">← Back</button>
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-label" id="progressLabel"></div>
+      </div>
+    </div>
+
+    <div class="word-card" id="wordCard">
+      <div class="word-display" id="wordDisplay"></div>
+      <div class="word-hint" id="wordHint"></div>
+    </div>
+
+    <div class="answer-options" id="answerOptions"></div>
+    <div class="feedback-msg" id="feedbackMsg"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()" disabled>Next Word →</button>
+  </div>
+
+  <!-- COMPLETE SCREEN -->
+  <div class="screen" id="screen-complete">
+    <div class="complete-card">
+      <span class="big-emoji" id="completeEmoji">🎉</span>
+      <h2 id="completeTitle">Amazing!</h2>
+      <div class="score-display" id="completeScore"></div>
+      <p id="completeMsg" style="margin-top:12px"></p>
+      <button class="next-btn" onclick="goBack()" style="margin-top:8px">Play Again!</button>
+    </div>
+  </div>
+
+  <!-- FLASHCARD SCREEN -->
+  <div class="screen" id="screen-flashcards">
+    <div class="flashcard-level-select">
+      <button class="fc-level-btn active" onclick="setFCLevel(0)">All</button>
+      <button class="fc-level-btn" onclick="setFCLevel(1)">Level 1</button>
+      <button class="fc-level-btn" onclick="setFCLevel(2)">Level 2</button>
+      <button class="fc-level-btn" onclick="setFCLevel(3)">Level 3</button>
+      <button class="fc-level-btn" onclick="setFCLevel(4)">Level 4</button>
+    </div>
+
+    <div class="flashcard" id="flashcard" onclick="nextFlashcard()">
+      <div class="fc-word" id="fcWord">tap!</div>
+      <div class="fc-tap-hint">tap for next word</div>
+    </div>
+
+    <div class="fc-controls">
+      <button class="fc-btn try-again" onclick="fcMark(false)">🔁 Try Again</button>
+      <button class="fc-btn got-it" onclick="fcMark(true)">✅ Got it!</button>
+    </div>
+    <div class="fc-score" id="fcScore"></div>
+  </div>
+</main>
+
+<script>
+// ── WORD LISTS ──────────────────────────────────────────────────
+// Edit these arrays to customize the sight words!
+const WORDS = {
+  1: ['a','I','the','is','in','it','to','and','on','at','go','he','me','my','no','so','up','we'],
+  2: ['am','an','as','be','by','do','go','if','of','or','us','are','can','did','for','get','got','had','has','him','his','how','its','let','not','now','off','old','one','our','out','put','ran','run','sat','saw','say','set','she','six','ten','the','two','use','was','way','who','why','you'],
+  3: ['again','also','around','because','been','best','both','buy','call','came','come','could','down','each','eat','even','find','first','five','four','from','give','good','grow','have','help','here','hold','home','hurt','just','keep','kind','know','last','left','like','live','look','long','made','make','many','more','most','much','must','name','need','new','next','nice','nine','only','open','over','play','pull','read','ride','right','said','same','show','sing','sit','some','soon','stop','sure','take','tell','than','that','them','then','there','these','they','think','this','those','three','time','too','told','try','turn','upon','very','walk','want','well','went','were','what','when','where','which','while','with','work','year','your'],
+  4: ['above','across','always','another','answer','anyone','anywhere','beautiful','before','between','bought','brought','build','built','carry','caught','change','children','choose','city','clean','clear','close','color','comes','couldn\'t','cried','decided','different','done','door','during','early','else','enough','ever','every','everything','except','eyes','face','fall','family','far','father','favorite','feel','feet','finally','follow','found','front','full','gave','goes','gone','great','group','guess','hands','happen','hard','hear','heart','heavy','hold','hope','hours','house','idea','inside','instead','just','knew','large','later','learned','leave','light','listen','little','might','mind','minutes','money','month','morning','mother','move','never','nothing','notice','number','often','once','other','outside','own','part','people','place','plan','point','possible','probably','problem','pull','question','quickly','quiet','ready','really','remember','river','school','second','seems','several','should','since','small','something','sometimes','sound','start','still','story','straight','sudden','taken','talking','things','thought','thousand','through','together','toward','town','trees','trouble','true','turned','under','until','upon','usually','voice','water','window','without','wonderful','world','would','write','written','young']
+};
+
+// ── STATE ──────────────────────────────────────────────────────
+let totalStars = 0;
+let currentLevel = 1;
+let quizWords = [];
+let quizIndex = 0;
+let quizCorrect = 0;
+let answered = false;
+
+let fcLevel = 0;
+let fcPool = [];
+let fcIndex = 0;
+let fcGot = 0;
+let fcTotal = 0;
+
+// ── INIT ──────────────────────────────────────────────────────
+function init() {
+  for (let l = 1; l <= 4; l++) {
+    document.getElementById(`count-${l}`).textContent = WORDS[l].length + ' words';
+  }
+  updateStars();
+  initFlashcards();
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ── TABS ──────────────────────────────────────────────────────
+function showTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', (i === 0 && tab === 'levels') || (i === 1 && tab === 'flashcards'));
+  });
+  if (tab === 'levels') {
+    showScreen('levels');
+  } else {
+    showScreen('flashcards');
+    initFlashcards();
+  }
+}
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+}
+
+// ── QUIZ ──────────────────────────────────────────────────────
+function startQuiz(level) {
+  currentLevel = level;
+  quizWords = shuffle(WORDS[level]);
+  quizIndex = 0;
+  quizCorrect = 0;
+  showScreen('quiz');
+  showQuestion();
+}
+
+function getAllWords(excludeLevel) {
+  let all = [];
+  for (let l = 1; l <= 4; l++) {
+    if (l !== excludeLevel) all = all.concat(WORDS[l]);
+  }
+  return all;
+}
+
+function showQuestion() {
+  answered = false;
+  const word = quizWords[quizIndex];
+  const total = quizWords.length;
+
+  document.getElementById('progressFill').style.width = `${(quizIndex / total) * 100}%`;
+  document.getElementById('progressLabel').textContent = `${quizIndex + 1} of ${total}`;
+  document.getElementById('wordDisplay').textContent = word;
+  document.getElementById('wordHint').textContent = `${word.length} letter${word.length !== 1 ? 's' : ''}`;
+  document.getElementById('wordCard').className = 'word-card';
+  document.getElementById('feedbackMsg').textContent = '';
+  document.getElementById('feedbackMsg').className = 'feedback-msg';
+  document.getElementById('nextBtn').disabled = true;
+
+  // Build 4 choices: correct + 3 distractors from other words
+  const pool = shuffle(getAllWords(currentLevel).filter(w => w !== word));
+  const distractors = pool.slice(0, 3);
+  const choices = shuffle([word, ...distractors]);
+
+  const container = document.getElementById('answerOptions');
+  container.innerHTML = '';
+  choices.forEach(ch => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.textContent = ch;
+    btn.onclick = () => checkAnswer(ch, word, btn);
+    container.appendChild(btn);
+  });
+}
+
+function checkAnswer(chosen, correct, btn) {
+  if (answered) return;
+  answered = true;
+
+  const card = document.getElementById('wordCard');
+  const feedback = document.getElementById('feedbackMsg');
+  const allBtns = document.querySelectorAll('.opt-btn');
+
+  allBtns.forEach(b => {
+    b.disabled = true;
+    if (b.textContent === correct) b.classList.add('correct-ans');
+  });
+
+  if (chosen === correct) {
+    quizCorrect++;
+    totalStars++;
+    card.classList.add('correct');
+    feedback.textContent = ['🌟 Yes!', '⭐ Great!', '🎉 Awesome!', '✨ Perfect!'][Math.floor(Math.random()*4)];
+    feedback.className = 'feedback-msg good';
+    btn.classList.remove('correct-ans');
+    btn.style.background = 'rgba(76,175,80,0.4)';
+    updateStars();
+  } else {
+    card.classList.add('wrong');
+    feedback.textContent = ['Keep trying! 💪', 'Almost! 🔍', 'Look again! 👀'][Math.floor(Math.random()*3)];
+    feedback.className = 'feedback-msg bad';
+    btn.classList.add('wrong-ans');
+  }
+
+  document.getElementById('nextBtn').disabled = false;
+}
+
+function nextQuestion() {
+  quizIndex++;
+  if (quizIndex >= quizWords.length) {
+    showComplete();
+  } else {
+    showQuestion();
+  }
+}
+
+function showComplete() {
+  const total = quizWords.length;
+  const pct = Math.round((quizCorrect / total) * 100);
+  let emoji = '🌱', title = 'Good try!';
+  if (pct >= 90) { emoji = '🏆'; title = 'Word Champion!'; }
+  else if (pct >= 70) { emoji = '🌟'; title = 'Great job!'; }
+  else if (pct >= 50) { emoji = '👍'; title = 'Nice work!'; }
+
+  document.getElementById('completeEmoji').textContent = emoji;
+  document.getElementById('completeTitle').textContent = title;
+  document.getElementById('completeScore').innerHTML = `${quizCorrect}<span> / ${total}</span>`;
+  document.getElementById('completeMsg').textContent = `${pct}% correct — you earned ${quizCorrect} star${quizCorrect !== 1 ? 's' : ''}!`;
+  showScreen('complete');
+}
+
+function goBack() {
+  showScreen('levels');
+  document.querySelectorAll('.tab-btn')[0].classList.add('active');
+  document.querySelectorAll('.tab-btn')[1].classList.remove('active');
+}
+
+// ── STARS ──────────────────────────────────────────────────────
+function updateStars() {
+  const display = document.getElementById('starsDisplay');
+  const filled = Math.min(totalStars, 20);
+  display.innerHTML = Array.from({length: filled}, (_, i) =>
+    `<span class="star-anim" style="animation-delay:${i*0.03}s">⭐</span>`
+  ).join('');
+  if (totalStars > 20) display.innerHTML += ` +${totalStars - 20} more!`;
+}
+
+// ── FLASHCARDS ──────────────────────────────────────────────────
+function initFlashcards() {
+  setFCLevel(fcLevel);
+}
+
+function setFCLevel(level) {
+  fcLevel = level;
+  document.querySelectorAll('.fc-level-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === level);
+  });
+  if (level === 0) {
+    fcPool = shuffle([...WORDS[1], ...WORDS[2], ...WORDS[3], ...WORDS[4]]);
+  } else {
+    fcPool = shuffle([...WORDS[level]]);
+  }
+  fcIndex = 0;
+  fcGot = 0;
+  fcTotal = 0;
+  showFlashcard();
+}
+
+function showFlashcard() {
+  if (fcPool.length === 0) return;
+  const word = fcPool[fcIndex % fcPool.length];
+  const el = document.getElementById('fcWord');
+  el.style.opacity = '0';
+  setTimeout(() => {
+    el.textContent = word;
+    el.style.opacity = '1';
+  }, 80);
+  updateFCScore();
+}
+
+function nextFlashcard() {
+  fcIndex = (fcIndex + 1) % fcPool.length;
+  if (fcIndex === 0) fcPool = shuffle(fcPool); // re-shuffle on loop
+  showFlashcard();
+}
+
+function fcMark(gotIt) {
+  if (gotIt) fcGot++;
+  fcTotal++;
+  nextFlashcard();
+}
+
+function updateFCScore() {
+  const el = document.getElementById('fcScore');
+  if (fcTotal === 0) {
+    el.textContent = 'Tap the card to flip to the next word';
+  } else {
+    el.textContent = `Got it: ${fcGot} / ${fcTotal} tries`;
+  }
+}
+
+init();
+</script>
+</body>
+</html>
