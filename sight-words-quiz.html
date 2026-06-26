@@ -371,9 +371,10 @@
       </div>
 
     </div>
+    <div style="text-align:center; margin-top:20px;">
+      <button onclick="resetToday()" style="background:none; border:none; color:rgba(255,255,255,0.25); font-family:'Nunito',sans-serif; font-size:12px; font-weight:700; cursor:pointer; letter-spacing:1px;">⚙ reset today</button>
+    </div>
   </div>
-
-  <!-- QUIZ SCREEN -->
   <div class="screen" id="screen-quiz">
     <div class="quiz-header">
       <button class="back-btn" onclick="goBack()">← Back</button>
@@ -440,10 +441,46 @@ let fcIndex = 0;
 let fcGot = 0;
 let fcTotal = 0;
 
+// ── PERSISTENCE ───────────────────────────────────────────────
+function todayKey() {
+  return new Date().toISOString().slice(0, 10); // "2026-06-26"
+}
+
+function saveProgress() {
+  localStorage.setItem('sightwords_date', todayKey());
+  localStorage.setItem('sightwords_done', JSON.stringify([...completedLevels]));
+}
+
+function loadProgress() {
+  var savedDate = localStorage.getItem('sightwords_date');
+  if (savedDate === todayKey()) {
+    var done = JSON.parse(localStorage.getItem('sightwords_done') || '[]');
+    done.forEach(function(l) {
+      completedLevels.add(Number(l));
+      document.getElementById('card-' + l).classList.add('done');
+    });
+  } else {
+    localStorage.removeItem('sightwords_date');
+    localStorage.removeItem('sightwords_done');
+  }
+}
+
+function resetToday() {
+  if (confirm('Reset all completions for today?')) {
+    localStorage.removeItem('sightwords_date');
+    localStorage.removeItem('sightwords_done');
+    completedLevels.clear();
+    for (var l = 1; l <= 4; l++) {
+      document.getElementById('card-' + l).classList.remove('done');
+    }
+  }
+}
+
 function init() {
-  for (let l = 1; l <= 4; l++) {
+  for (var l = 1; l <= 4; l++) {
     document.getElementById('count-' + l).textContent = (WORDS[l].length+1) + ' words';
   }
+  loadProgress();
   initFlashcards();
 }
 
@@ -485,7 +522,7 @@ function startQuiz(level) {
 function showQuestion() {
   var word = quizWords[quizIndex];
   var total = quizWords.length;
-  document.getElementById('progressFill').style.width = (((quizIndex + 1) / total) * 100) + '%';
+  document.getElementById('progressFill').style.width = (((quizIndex +1)/ total) * 100) + '%';
   document.getElementById('progressLabel').textContent = (quizIndex + 1) + ' of ' + total;
   document.getElementById('wordDisplay').textContent = word;
 }
@@ -575,6 +612,7 @@ function nextQuestion() {
 function showComplete() {
   completedLevels.add(currentLevel);
   document.getElementById('card-' + currentLevel).classList.add('done');
+  saveProgress();
   document.getElementById('completeEmoji').textContent = '🏆';
   document.getElementById('completeTitle').textContent = 'You did it!';
   document.getElementById('completeScore').innerHTML = '+15<span> minutes!</span>';
