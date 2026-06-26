@@ -29,7 +29,6 @@
     align-items: center;
   }
 
-  /* Stars background */
   body::before {
     content: '★ ✦ ★ ✦ ★ ✦ ★ ✦ ★ ✦ ★ ✦ ★ ✦ ★ ✦ ★';
     position: fixed;
@@ -58,33 +57,6 @@
     letter-spacing: -0.5px;
   }
 
-  /* Level card completion */
-  .level-card .done-star {
-    display: none;
-    position: absolute;
-    bottom: 10px; right: 14px;
-    font-size: 22px;
-    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));
-  }
-  .level-card .done-overlay {
-    display: none;
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.45);
-    border-radius: 16px;
-    align-items: center;
-    justify-content: center;
-    font-size: 15px;
-    font-weight: 900;
-    letter-spacing: 1px;
-    color: var(--yellow);
-    pointer-events: none;
-  }
-  .level-card.done { cursor: default; }
-  .level-card.done .done-star { display: block; }
-  .level-card.done .done-overlay { display: flex; }
-
-  /* Nav tabs */
   .tabs {
     position: relative;
     z-index: 1;
@@ -109,13 +81,8 @@
     transition: all 0.15s;
   }
   .tab-btn:hover { background: rgba(255,255,255,0.15); }
-  .tab-btn.active {
-    background: var(--yellow);
-    color: var(--navy);
-    border-color: #b89820;
-  }
+  .tab-btn.active { background: var(--yellow); color: var(--navy); border-color: #b89820; }
 
-  /* Main container */
   main {
     position: relative;
     z-index: 1;
@@ -124,7 +91,6 @@
     padding: 0 16px 40px;
   }
 
-  /* Screen switching */
   .screen { display: none; }
   .screen.active { display: block; }
 
@@ -137,7 +103,7 @@
 
   .level-card {
     border-radius: 20px;
-    padding: 24px 16px;
+    padding: 24px 16px 32px;
     text-align: center;
     cursor: pointer;
     border: 4px solid transparent;
@@ -151,13 +117,6 @@
   .level-card.l3 { background: linear-gradient(135deg, #9B6FD4, #6a1b9a); border-color: #ce93d8; }
   .level-card.l4 { background: linear-gradient(135deg, #FF8C42, #e65100); border-color: #ffb74d; }
 
-  .level-card .badge {
-    display: inline-block;
-    font-size: 36px;
-    margin-bottom: 8px;
-  }
-  .level-card h2 { font-size: 20px; font-weight: 900; }
-  .level-card p { font-size: 13px; opacity: 0.85; margin-top: 4px; }
   .level-card .word-count {
     position: absolute;
     top: 10px; right: 12px;
@@ -167,6 +126,28 @@
     padding: 2px 8px;
     border-radius: 999px;
   }
+  .level-card .badge { font-size: 36px; display: block; margin-bottom: 8px; }
+  .level-card h2 { font-size: 20px; font-weight: 900; }
+  .level-card p { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+
+  /* Done overlay */
+  .done-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    border-radius: 16px;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--yellow);
+    letter-spacing: 1px;
+    pointer-events: none;
+  }
+  .level-card.done { cursor: default; }
+  .level-card.done:hover { transform: none; box-shadow: none; }
+  .level-card.done .done-overlay { display: flex; }
 
   /* ── QUIZ SCREEN ── */
   .quiz-header {
@@ -190,10 +171,7 @@
   }
   .back-btn:hover { background: rgba(255,255,255,0.2); }
 
-  .progress-wrap {
-    flex: 1;
-    margin: 0 16px;
-  }
+  .progress-wrap { flex: 1; margin: 0 16px; }
   .progress-bar {
     height: 12px;
     background: rgba(255,255,255,0.15);
@@ -249,7 +227,6 @@
   }
   .next-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #8a6800; }
   .next-btn:active { transform: translateY(2px); box-shadow: 0 3px 0 #8a6800; }
-  .next-btn:disabled { opacity: 0.4; cursor: default; transform: none; box-shadow: 0 5px 0 #8a6800; }
 
   /* ── COMPLETE SCREEN ── */
   .complete-card {
@@ -305,8 +282,7 @@
   }
   .flashcard:hover { transform: scale(1.02); box-shadow: 0 12px 32px rgba(0,0,0,0.3); }
   .flashcard:active { transform: scale(0.98); }
-
-  .flashcard .fc-word {
+  .fc-word {
     font-size: clamp(56px, 16vw, 104px);
     font-weight: 900;
     color: var(--blue);
@@ -314,18 +290,9 @@
     text-shadow: 0 4px 0 #1a4a6a;
     transition: opacity 0.15s;
   }
-  .flashcard .fc-tap-hint {
-    font-size: 14px;
-    opacity: 0.5;
-    font-weight: 700;
-    margin-top: 16px;
-    letter-spacing: 1px;
-  }
+  .fc-tap-hint { font-size: 14px; opacity: 0.5; font-weight: 700; margin-top: 16px; letter-spacing: 1px; }
 
-  .fc-controls {
-    display: flex;
-    gap: 14px;
-  }
+  .fc-controls { display: flex; gap: 14px; }
   .fc-btn {
     flex: 1;
     padding: 16px;
@@ -340,16 +307,8 @@
   .fc-btn.got-it { background: rgba(76,175,80,0.15); border-color: var(--green); color: #a5d6a7; }
   .fc-btn.try-again { background: rgba(255,140,66,0.15); border-color: var(--orange); color: #ffcc80; }
   .fc-btn:hover { filter: brightness(1.2); transform: translateY(-2px); }
+  .fc-score { text-align: center; margin-top: 16px; font-size: 15px; font-weight: 700; opacity: 0.7; }
 
-  .fc-score {
-    text-align: center;
-    margin-top: 16px;
-    font-size: 15px;
-    font-weight: 700;
-    opacity: 0.7;
-  }
-
-  /* Star pop animation */
   @keyframes starPop {
     0% { transform: scale(0) rotate(-20deg); opacity: 0; }
     60% { transform: scale(1.3) rotate(10deg); opacity: 1; }
@@ -374,42 +333,43 @@
 </div>
 
 <main>
+
   <!-- LEVEL SELECT -->
   <div class="screen active" id="screen-levels">
     <div class="level-grid">
-      <div class="level-card l1" onclick="startQuiz(1)">
+
       <div class="level-card l1" id="card-1" onclick="startQuiz(1)">
         <div class="word-count" id="count-1"></div>
-        <div class="badge">🌱</div>
+        <span class="badge">🌱</span>
         <h2>Easy</h2>
         <p>Getting started</p>
-        <div class="done-star">⭐</div>
         <div class="done-overlay">⭐ Done today!</div>
       </div>
+
       <div class="level-card l2" id="card-2" onclick="startQuiz(2)">
         <div class="word-count" id="count-2"></div>
-        <div class="badge">🌟</div>
+        <span class="badge">🌟</span>
         <h2>Medium</h2>
         <p>Building up</p>
-        <div class="done-star">⭐</div>
         <div class="done-overlay">⭐ Done today!</div>
       </div>
+
       <div class="level-card l3" id="card-3" onclick="startQuiz(3)">
         <div class="word-count" id="count-3"></div>
-        <div class="badge">🚀</div>
+        <span class="badge">🚀</span>
         <h2>Hard</h2>
         <p>Getting tricky</p>
-        <div class="done-star">⭐</div>
         <div class="done-overlay">⭐ Done today!</div>
       </div>
+
       <div class="level-card l4" id="card-4" onclick="startQuiz(4)">
         <div class="word-count" id="count-4"></div>
-        <div class="badge">🏆</div>
+        <span class="badge">🏆</span>
         <h2>Expert</h2>
         <p>Word champion!</p>
-        <div class="done-star">⭐</div>
         <div class="done-overlay">⭐ Done today!</div>
       </div>
+
     </div>
   </div>
 
@@ -422,22 +382,20 @@
         <div class="progress-label" id="progressLabel"></div>
       </div>
     </div>
-
     <div class="word-card">
       <div class="word-display" id="wordDisplay"></div>
     </div>
-
-    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Word →</button>
+    <button class="next-btn" onclick="nextQuestion()">Next Word →</button>
   </div>
 
   <!-- COMPLETE SCREEN -->
   <div class="screen" id="screen-complete">
     <div class="complete-card">
       <span class="big-emoji" id="completeEmoji">🎉</span>
-      <h2 id="completeTitle">Amazing!</h2>
+      <h2 id="completeTitle">You did it!</h2>
       <div class="score-display" id="completeScore"></div>
       <p id="completeMsg" style="margin-top:12px"></p>
-      <button class="next-btn" onclick="goBack()" style="margin-top:8px">Play Again!</button>
+      <button class="next-btn" onclick="goBack()" style="margin-top:24px">Back to Levels</button>
     </div>
   </div>
 
@@ -445,36 +403,32 @@
   <div class="screen" id="screen-flashcards">
     <div class="flashcard-level-select">
       <button class="fc-level-btn active" onclick="setFCLevel(0)">All</button>
-      <button class="fc-level-btn" onclick="setFCLevel(1)">Level 1</button>
-      <button class="fc-level-btn" onclick="setFCLevel(2)">Level 2</button>
-      <button class="fc-level-btn" onclick="setFCLevel(3)">Level 3</button>
-      <button class="fc-level-btn" onclick="setFCLevel(4)">Level 4</button>
+      <button class="fc-level-btn" onclick="setFCLevel(1)">Easy</button>
+      <button class="fc-level-btn" onclick="setFCLevel(2)">Medium</button>
+      <button class="fc-level-btn" onclick="setFCLevel(3)">Hard</button>
+      <button class="fc-level-btn" onclick="setFCLevel(4)">Expert</button>
     </div>
-
-    <div class="flashcard" id="flashcard" onclick="nextFlashcard()">
+    <div class="flashcard" onclick="nextFlashcard()">
       <div class="fc-word" id="fcWord">tap!</div>
       <div class="fc-tap-hint">tap for next word</div>
     </div>
-
     <div class="fc-controls">
       <button class="fc-btn try-again" onclick="fcMark(false)">🔁 Try Again</button>
       <button class="fc-btn got-it" onclick="fcMark(true)">✅ Got it!</button>
     </div>
     <div class="fc-score" id="fcScore"></div>
   </div>
+
 </main>
 
 <script>
-// ── WORD LISTS ──────────────────────────────────────────────────
-// Edit these arrays to customize the sight words!
 const WORDS = {
   1: ['a','I','the','is','in','it','to','and','on','at','go','he','me','my','no','so','up','we'],
   2: ['am','an','as','be','by','do','go','if','of','or','us','are','can','did','for','get','got','had','has','him','his','how','its','let','not','now','off','old','one','our','out','put','ran','run','sat','saw','say','set','she','six','ten','the','two','use','was','way','who','why','you'],
   3: ['again','also','around','because','been','best','both','buy','call','came','come','could','down','each','eat','even','find','first','five','four','from','give','good','grow','have','help','here','hold','home','hurt','just','keep','kind','know','last','left','like','live','look','long','made','make','many','more','most','much','must','name','need','new','next','nice','nine','only','open','over','play','pull','read','ride','right','said','same','show','sing','sit','some','soon','stop','sure','take','tell','than','that','them','then','there','these','they','think','this','those','three','time','too','told','try','turn','upon','very','walk','want','well','went','were','what','when','where','which','while','with','work','year','your'],
-  4: ['above','across','always','another','answer','anyone','anywhere','beautiful','before','between','bought','brought','build','built','carry','caught','change','children','choose','city','clean','clear','close','color','comes','couldn\'t','cried','decided','different','done','door','during','early','else','enough','ever','every','everything','except','eyes','face','fall','family','far','father','favorite','feel','feet','finally','follow','found','front','full','gave','goes','gone','great','group','guess','hands','happen','hard','hear','heart','heavy','hold','hope','hours','house','idea','inside','instead','just','knew','large','later','learned','leave','light','listen','little','might','mind','minutes','money','month','morning','mother','move','never','nothing','notice','number','often','once','other','outside','own','part','people','place','plan','point','possible','probably','problem','pull','question','quickly','quiet','ready','really','remember','river','school','second','seems','several','should','since','small','something','sometimes','sound','start','still','story','straight','sudden','taken','talking','things','thought','thousand','through','together','toward','town','trees','trouble','true','turned','under','until','upon','usually','voice','water','window','without','wonderful','world','would','write','written','young']
+  4: ['above','across','always','another','answer','anyone','anywhere','beautiful','before','between','bought','brought','build','built','carry','caught','change','children','choose','city','clean','clear','close','color','comes',"couldn't",'cried','decided','different','done','door','during','early','else','enough','ever','every','everything','except','eyes','face','fall','family','far','father','favorite','feel','feet','finally','follow','found','front','full','gave','goes','gone','great','group','guess','hands','happen','hard','hear','heart','heavy','hold','hope','hours','house','idea','inside','instead','just','knew','large','later','learned','leave','light','listen','little','might','mind','minutes','money','month','morning','mother','move','never','nothing','notice','number','often','once','other','outside','own','part','people','place','plan','point','possible','probably','problem','pull','question','quickly','quiet','ready','really','remember','river','school','second','seems','several','should','since','small','something','sometimes','sound','start','still','story','straight','sudden','taken','talking','things','thought','thousand','through','together','toward','town','trees','trouble','true','turned','under','until','upon','usually','voice','water','window','without','wonderful','world','would','write','written','young']
 };
 
-// ── STATE ──────────────────────────────────────────────────────
 let completedLevels = new Set();
 let currentLevel = 1;
 let quizWords = [];
@@ -486,10 +440,9 @@ let fcIndex = 0;
 let fcGot = 0;
 let fcTotal = 0;
 
-// ── INIT ──────────────────────────────────────────────────────
 function init() {
   for (let l = 1; l <= 4; l++) {
-    document.getElementById(`count-${l}`).textContent = WORDS[l].length + ' words';
+    document.getElementById('count-' + l).textContent = Math.min(WORDS[l].length, 20) + ' words';
   }
   initFlashcards();
 }
@@ -503,9 +456,8 @@ function shuffle(arr) {
   return a;
 }
 
-// ── TABS ──────────────────────────────────────────────────────
 function showTab(tab) {
-  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+  document.querySelectorAll('.tab-btn').forEach(function(b, i) {
     b.classList.toggle('active', (i === 0 && tab === 'levels') || (i === 1 && tab === 'flashcards'));
   });
   if (tab === 'levels') {
@@ -517,13 +469,12 @@ function showTab(tab) {
 }
 
 function showScreen(name) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
   document.getElementById('screen-' + name).classList.add('active');
 }
 
-// ── QUIZ ──────────────────────────────────────────────────────
 function startQuiz(level) {
-  if (completedLevels.has(level)) return; // already done today
+  if (completedLevels.has(level)) return;
   currentLevel = level;
   quizWords = shuffle(WORDS[level]).slice(0, 20);
   quizIndex = 0;
@@ -532,11 +483,10 @@ function startQuiz(level) {
 }
 
 function showQuestion() {
-  const word = quizWords[quizIndex];
-  const total = quizWords.length;
-
-  document.getElementById('progressFill').style.width = `${(quizIndex / total) * 100}%`;
-  document.getElementById('progressLabel').textContent = `${quizIndex + 1} of ${total}`;
+  var word = quizWords[quizIndex];
+  var total = quizWords.length;
+  document.getElementById('progressFill').style.width = ((quizIndex / total) * 100) + '%';
+  document.getElementById('progressLabel').textContent = (quizIndex + 1) + ' of ' + total;
   document.getElementById('wordDisplay').textContent = word;
 }
 
@@ -551,29 +501,33 @@ function nextQuestion() {
 
 function showComplete() {
   completedLevels.add(currentLevel);
-  document.getElementById(`card-${currentLevel}`).classList.add('done');
-
+  document.getElementById('card-' + currentLevel).classList.add('done');
   document.getElementById('completeEmoji').textContent = '🏆';
   document.getElementById('completeTitle').textContent = 'You did it!';
-  document.getElementById('completeScore').innerHTML = `+15<span> minutes!</span>`;
-  document.getElementById('completeMsg').textContent = `${quizWords.length} words crushed — screen time earned! 🎉`;
+  document.getElementById('completeScore').innerHTML = '+15<span> minutes!</span>';
+  document.getElementById('completeMsg').textContent = quizWords.length + ' words crushed — screen time earned! 🎉';
   showScreen('complete');
 }
 
-// ── FLASHCARDS ──────────────────────────────────────────────────
+function goBack() {
+  showScreen('levels');
+  document.querySelectorAll('.tab-btn')[0].classList.add('active');
+  document.querySelectorAll('.tab-btn')[1].classList.remove('active');
+}
+
 function initFlashcards() {
   setFCLevel(fcLevel);
 }
 
 function setFCLevel(level) {
   fcLevel = level;
-  document.querySelectorAll('.fc-level-btn').forEach((b, i) => {
+  document.querySelectorAll('.fc-level-btn').forEach(function(b, i) {
     b.classList.toggle('active', i === level);
   });
   if (level === 0) {
-    fcPool = shuffle([...WORDS[1], ...WORDS[2], ...WORDS[3], ...WORDS[4]]);
+    fcPool = shuffle([].concat(WORDS[1], WORDS[2], WORDS[3], WORDS[4]));
   } else {
-    fcPool = shuffle([...WORDS[level]]);
+    fcPool = shuffle(WORDS[level].slice());
   }
   fcIndex = 0;
   fcGot = 0;
@@ -583,10 +537,10 @@ function setFCLevel(level) {
 
 function showFlashcard() {
   if (fcPool.length === 0) return;
-  const word = fcPool[fcIndex % fcPool.length];
-  const el = document.getElementById('fcWord');
+  var word = fcPool[fcIndex % fcPool.length];
+  var el = document.getElementById('fcWord');
   el.style.opacity = '0';
-  setTimeout(() => {
+  setTimeout(function() {
     el.textContent = word;
     el.style.opacity = '1';
   }, 80);
@@ -595,7 +549,7 @@ function showFlashcard() {
 
 function nextFlashcard() {
   fcIndex = (fcIndex + 1) % fcPool.length;
-  if (fcIndex === 0) fcPool = shuffle(fcPool); // re-shuffle on loop
+  if (fcIndex === 0) fcPool = shuffle(fcPool);
   showFlashcard();
 }
 
@@ -606,12 +560,8 @@ function fcMark(gotIt) {
 }
 
 function updateFCScore() {
-  const el = document.getElementById('fcScore');
-  if (fcTotal === 0) {
-    el.textContent = 'Tap the card to flip to the next word';
-  } else {
-    el.textContent = `Got it: ${fcGot} / ${fcTotal} tries`;
-  }
+  var el = document.getElementById('fcScore');
+  el.textContent = fcTotal === 0 ? 'Tap the card to go to the next word' : 'Got it: ' + fcGot + ' / ' + fcTotal + ' tries';
 }
 
 init();
