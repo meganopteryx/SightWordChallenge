@@ -216,6 +216,16 @@
   .next-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #8a6800; }
   .next-btn:active { transform: translateY(2px); box-shadow: 0 3px 0 #8a6800; }
 
+  /* ── CONFETTI ── */
+  #confetti-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 999;
+  }
+
   /* ── COMPLETE SCREEN ── */
   .complete-card {
     background: rgba(255,255,255,0.06);
@@ -310,6 +320,8 @@
 </style>
 </head>
 <body>
+
+<canvas id="confetti-canvas"></canvas>
 
 <header>
   <h1>⭐ Sight Words Adventure!</h1>
@@ -487,6 +499,79 @@ function nextQuestion() {
   }
 }
 
+// ── CONFETTI ──────────────────────────────────────────────────
+(function() {
+  var canvas = document.getElementById('confetti-canvas');
+  var ctx = canvas.getContext('2d');
+  var particles = [];
+  var animId = null;
+  var COLORS = ['#FFD93D','#6EC6F5','#4CAF50','#FF8C42','#9B6FD4','#F0F8FF','#E05C5C'];
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function randomBetween(a, b) { return a + Math.random() * (b - a); }
+
+  function launch() {
+    resize();
+    particles = [];
+    // Burst from top-center
+    for (var i = 0; i < 120; i++) {
+      particles.push({
+        x: canvas.width * randomBetween(0.3, 0.7),
+        y: canvas.height * -0.05,
+        vx: randomBetween(-6, 6),
+        vy: randomBetween(2, 9),
+        w: randomBetween(8, 14),
+        h: randomBetween(5, 9),
+        color: COLORS[Math.floor(Math.random() * COLORS.length)],
+        angle: randomBetween(0, Math.PI * 2),
+        spin: randomBetween(-0.18, 0.18),
+        gravity: randomBetween(0.18, 0.28),
+        opacity: 1
+      });
+    }
+    if (animId) cancelAnimationFrame(animId);
+    var start = null;
+    var DURATION = 3200;
+    function step(ts) {
+      if (!start) start = ts;
+      var elapsed = ts - start;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      var allGone = true;
+      for (var i = 0; i < particles.length; i++) {
+        var p = particles[i];
+        p.vy += p.gravity;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.angle += p.spin;
+        p.opacity = Math.max(0, 1 - (elapsed / DURATION));
+        if (p.y < canvas.height + 20) allGone = false;
+        ctx.save();
+        ctx.globalAlpha = p.opacity;
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.angle);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+      }
+      if (!allGone && elapsed < DURATION) {
+        animId = requestAnimationFrame(step);
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        animId = null;
+      }
+    }
+    animId = requestAnimationFrame(step);
+  }
+
+  window.launchConfetti = launch;
+})();
+
 function showComplete() {
   completedLevels.add(currentLevel);
   document.getElementById('card-' + currentLevel).classList.add('done');
@@ -495,6 +580,7 @@ function showComplete() {
   document.getElementById('completeScore').innerHTML = '+15<span> minutes!</span>';
   document.getElementById('completeMsg').textContent = quizWords.length + ' words crushed — screen time earned! 🎉';
   showScreen('complete');
+  launchConfetti();
 }
 
 function goBack() {
