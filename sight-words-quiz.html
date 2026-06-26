@@ -58,11 +58,30 @@
     letter-spacing: -0.5px;
   }
 
-  .stars-earned {
+  /* Level card completion star */
+  .level-card .done-star {
+    display: none;
+    position: absolute;
+    bottom: 10px; right: 14px;
     font-size: 22px;
-    margin-top: 4px;
-    letter-spacing: 2px;
-    min-height: 30px;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.4));
+  }
+  .level-card.done .done-star { display: block; }
+  .level-card.done { opacity: 0.7; }
+  .level-card.done::after {
+    content: 'Done today!';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    background: rgba(0,0,0,0.35);
+    border-radius: 16px;
+    color: var(--yellow);
+    pointer-events: none;
   }
 
   /* Nav tabs */
@@ -347,7 +366,6 @@
 
 <header>
   <h1>⭐ Sight Words Adventure!</h1>
-  <div class="stars-earned" id="starsDisplay"></div>
 </header>
 
 <div class="tabs">
@@ -360,28 +378,33 @@
   <div class="screen active" id="screen-levels">
     <div class="level-grid">
       <div class="level-card l1" onclick="startQuiz(1)">
+      <div class="level-card l1" id="card-1" onclick="startQuiz(1)">
         <div class="word-count" id="count-1"></div>
         <div class="badge">🌱</div>
-        <h2>Level 1</h2>
+        <h2>Easy</h2>
         <p>Getting started</p>
+        <div class="done-star">⭐</div>
       </div>
-      <div class="level-card l2" onclick="startQuiz(2)">
+      <div class="level-card l2" id="card-2" onclick="startQuiz(2)">
         <div class="word-count" id="count-2"></div>
         <div class="badge">🌟</div>
-        <h2>Level 2</h2>
+        <h2>Medium</h2>
         <p>Building up</p>
+        <div class="done-star">⭐</div>
       </div>
-      <div class="level-card l3" onclick="startQuiz(3)">
+      <div class="level-card l3" id="card-3" onclick="startQuiz(3)">
         <div class="word-count" id="count-3"></div>
         <div class="badge">🚀</div>
-        <h2>Level 3</h2>
+        <h2>Hard</h2>
         <p>Getting tricky</p>
+        <div class="done-star">⭐</div>
       </div>
-      <div class="level-card l4" onclick="startQuiz(4)">
+      <div class="level-card l4" id="card-4" onclick="startQuiz(4)">
         <div class="word-count" id="count-4"></div>
         <div class="badge">🏆</div>
-        <h2>Level 4</h2>
+        <h2>Expert</h2>
         <p>Word champion!</p>
+        <div class="done-star">⭐</div>
       </div>
     </div>
   </div>
@@ -448,7 +471,7 @@ const WORDS = {
 };
 
 // ── STATE ──────────────────────────────────────────────────────
-let totalStars = 0;
+let completedLevels = new Set();
 let currentLevel = 1;
 let quizWords = [];
 let quizIndex = 0;
@@ -464,7 +487,6 @@ function init() {
   for (let l = 1; l <= 4; l++) {
     document.getElementById(`count-${l}`).textContent = WORDS[l].length + ' words';
   }
-  updateStars();
   initFlashcards();
 }
 
@@ -497,6 +519,7 @@ function showScreen(name) {
 
 // ── QUIZ ──────────────────────────────────────────────────────
 function startQuiz(level) {
+  if (completedLevels.has(level)) return; // already done today
   currentLevel = level;
   quizWords = shuffle(WORDS[level]).slice(0, 20);
   quizIndex = 0;
@@ -514,8 +537,6 @@ function showQuestion() {
 }
 
 function nextQuestion() {
-  totalStars++;
-  updateStars();
   quizIndex++;
   if (quizIndex >= quizWords.length) {
     showComplete();
@@ -525,28 +546,14 @@ function nextQuestion() {
 }
 
 function showComplete() {
-  const total = quizWords.length;
+  completedLevels.add(currentLevel);
+  document.getElementById(`card-${currentLevel}`).classList.add('done');
+
   document.getElementById('completeEmoji').textContent = '🏆';
   document.getElementById('completeTitle').textContent = 'You did it!';
   document.getElementById('completeScore').innerHTML = `+15<span> minutes!</span>`;
-  document.getElementById('completeMsg').textContent = `${total} words crushed — screen time earned! 🎉`;
+  document.getElementById('completeMsg').textContent = `${quizWords.length} words crushed — screen time earned! 🎉`;
   showScreen('complete');
-}
-
-function goBack() {
-  showScreen('levels');
-  document.querySelectorAll('.tab-btn')[0].classList.add('active');
-  document.querySelectorAll('.tab-btn')[1].classList.remove('active');
-}
-
-// ── STARS ──────────────────────────────────────────────────────
-function updateStars() {
-  const display = document.getElementById('starsDisplay');
-  const filled = Math.min(totalStars, 20);
-  display.innerHTML = Array.from({length: filled}, (_, i) =>
-    `<span class="star-anim" style="animation-delay:${i*0.03}s">⭐</span>`
-  ).join('');
-  if (totalStars > 20) display.innerHTML += ` +${totalStars - 20} more!`;
 }
 
 // ── FLASHCARDS ──────────────────────────────────────────────────
