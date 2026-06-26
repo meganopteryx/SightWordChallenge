@@ -137,13 +137,14 @@
     inset: 0;
     background: rgba(0,0,0,0.5);
     border-radius: 16px;
-    align-items: center;
-    justify-content: center;
+    align-items: top;
+    justify-content: left;
     font-size: 16px;
     font-weight: 900;
     color: var(--yellow);
     letter-spacing: 1px;
     pointer-events: none;
+    padding: 20px;
   }
   .level-card.done { cursor: default; }
   .level-card.done:hover { transform: none; box-shadow: none; }
@@ -343,7 +344,7 @@
         <span class="badge">🌱</span>
         <h2>Easy</h2>
         <p>Getting started</p>
-        <div class="done-overlay">⭐ Done today!</div>
+        <div class="done-overlay">⭐ Done!</div>
       </div>
 
       <div class="level-card l2" id="card-2" onclick="startQuiz(2)">
@@ -351,7 +352,7 @@
         <span class="badge">🌟</span>
         <h2>Medium</h2>
         <p>Building up</p>
-        <div class="done-overlay">⭐ Done today!</div>
+        <div class="done-overlay">⭐ Done!</div>
       </div>
 
       <div class="level-card l3" id="card-3" onclick="startQuiz(3)">
@@ -359,7 +360,7 @@
         <span class="badge">🚀</span>
         <h2>Hard</h2>
         <p>Getting tricky</p>
-        <div class="done-overlay">⭐ Done today!</div>
+        <div class="done-overlay">⭐ Done!</div>
       </div>
 
       <div class="level-card l4" id="card-4" onclick="startQuiz(4)">
@@ -367,7 +368,7 @@
         <span class="badge">🏆</span>
         <h2>Expert</h2>
         <p>Word champion!</p>
-        <div class="done-overlay">⭐ Done today!</div>
+        <div class="done-overlay">⭐ Done!</div>
       </div>
 
     </div>
@@ -423,8 +424,8 @@
 
 <script>
 const WORDS = {
-  1: ['a','I','the','is','in','it','to','and','on','at','go','he','me','my','no','so','up','we'],
-  2: ['am','an','as','be','by','do','go','if','of','or','us','are','can','did','for','get','got','had','has','him','his','how','its','let','not','now','off','old','one','our','out','put','ran','run','sat','saw','say','set','she','six','ten','the','two','use','was','way','who','why','you'],
+  1: ['are','a','I','the','is','in','it','to','and','on','at','for','go','he','has','me','my','no','so', 'of','see', 'up','we','you'],
+  2: ['am','an','as','be','by','do','go','if','of','or','us','are','can','come','did','for','get','got','had','has','have','him','his','how','its','let','not','now','off','old','one','our','out','put','ran','run','sat','saw','say','set','she','six','ten','the','this','they','two','use','was','way','who','why','you'],
   3: ['again','also','around','because','been','best','both','buy','call','came','come','could','down','each','eat','even','find','first','five','four','from','give','good','grow','have','help','here','hold','home','hurt','just','keep','kind','know','last','left','like','live','look','long','made','make','many','more','most','much','must','name','need','new','next','nice','nine','only','open','over','play','pull','read','ride','right','said','same','show','sing','sit','some','soon','stop','sure','take','tell','than','that','them','then','there','these','they','think','this','those','three','time','too','told','try','turn','upon','very','walk','want','well','went','were','what','when','where','which','while','with','work','year','your'],
   4: ['above','across','always','another','answer','anyone','anywhere','beautiful','before','between','bought','brought','build','built','carry','caught','change','children','choose','city','clean','clear','close','color','comes',"couldn't",'cried','decided','different','done','door','during','early','else','enough','ever','every','everything','except','eyes','face','fall','family','far','father','favorite','feel','feet','finally','follow','found','front','full','gave','goes','gone','great','group','guess','hands','happen','hard','hear','heart','heavy','hold','hope','hours','house','idea','inside','instead','just','knew','large','later','learned','leave','light','listen','little','might','mind','minutes','money','month','morning','mother','move','never','nothing','notice','number','often','once','other','outside','own','part','people','place','plan','point','possible','probably','problem','pull','question','quickly','quiet','ready','really','remember','river','school','second','seems','several','should','since','small','something','sometimes','sound','start','still','story','straight','sudden','taken','talking','things','thought','thousand','through','together','toward','town','trees','trouble','true','turned','under','until','upon','usually','voice','water','window','without','wonderful','world','would','write','written','young']
 };
@@ -442,7 +443,7 @@ let fcTotal = 0;
 
 function init() {
   for (let l = 1; l <= 4; l++) {
-    document.getElementById('count-' + l).textContent = Math.min(WORDS[l].length, 20) + ' words';
+    document.getElementById('count-' + l).textContent = (WORDS[l].length+1) + ' words';
   }
   initFlashcards();
 }
