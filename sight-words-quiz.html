@@ -485,7 +485,7 @@ function startQuiz(level) {
 function showQuestion() {
   var word = quizWords[quizIndex];
   var total = quizWords.length;
-  document.getElementById('progressFill').style.width = ((quizIndex / total) * 100) + '%';
+  document.getElementById('progressFill').style.width = (((quizIndex + 1) / total) * 100) + '%';
   document.getElementById('progressLabel').textContent = (quizIndex + 1) + ' of ' + total;
   document.getElementById('wordDisplay').textContent = word;
 }
