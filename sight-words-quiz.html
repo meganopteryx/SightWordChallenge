@@ -199,77 +199,43 @@
     background: rgba(255,255,255,0.06);
     border: 3px solid rgba(255,255,255,0.12);
     border-radius: 28px;
-    padding: 40px 24px;
+    padding: 48px 24px;
     text-align: center;
     margin-bottom: 24px;
-    transition: border-color 0.2s, background 0.2s;
   }
-  .word-card.correct { border-color: var(--green); background: rgba(76,175,80,0.12); }
-  .word-card.wrong { border-color: var(--red); background: rgba(224,92,92,0.12); }
 
   .word-display {
-    font-size: clamp(52px, 14vw, 96px);
+    font-size: clamp(64px, 18vw, 120px);
     font-weight: 900;
     color: var(--yellow);
     letter-spacing: 4px;
     line-height: 1;
     text-shadow: 0 4px 0 #8a6800;
-    transition: transform 0.15s;
   }
 
-  .word-hint {
-    margin-top: 10px;
-    font-size: 15px;
-    opacity: 0.6;
-    font-weight: 700;
-    letter-spacing: 1px;
-  }
-
-  .answer-options {
+  /* Parent judgment buttons */
+  .judge-btns {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 14px;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
   }
 
-  .opt-btn {
-    padding: 18px 12px;
+  .judge-btn {
+    padding: 20px 12px;
     border-radius: 18px;
-    border: 3px solid rgba(255,255,255,0.18);
-    background: rgba(255,255,255,0.08);
-    color: var(--white);
+    border: 3px solid;
     font-family: 'Nunito', sans-serif;
-    font-size: clamp(22px, 5vw, 32px);
+    font-size: 20px;
     font-weight: 900;
     cursor: pointer;
-    transition: all 0.15s;
-    letter-spacing: 1px;
+    transition: transform 0.12s, filter 0.12s;
+    letter-spacing: 0.5px;
   }
-  .opt-btn:hover:not(:disabled) {
-    background: rgba(255,255,255,0.16);
-    transform: scale(1.04);
-  }
-  .opt-btn.correct-ans {
-    background: rgba(76,175,80,0.3);
-    border-color: var(--green);
-    color: #a5d6a7;
-  }
-  .opt-btn.wrong-ans {
-    background: rgba(224,92,92,0.25);
-    border-color: var(--red);
-    color: #ef9a9a;
-  }
-  .opt-btn:disabled { cursor: default; }
-
-  .feedback-msg {
-    text-align: center;
-    font-size: 22px;
-    font-weight: 900;
-    height: 36px;
-    margin-bottom: 16px;
-  }
-  .feedback-msg.good { color: var(--green); }
-  .feedback-msg.bad { color: var(--red); }
+  .judge-btn:hover { transform: translateY(-3px); filter: brightness(1.15); }
+  .judge-btn:active { transform: translateY(1px); }
+  .judge-btn.yes { background: rgba(76,175,80,0.2); border-color: var(--green); color: #a5d6a7; }
+  .judge-btn.no  { background: rgba(224,92,92,0.2); border-color: var(--red);   color: #ef9a9a; }
 
   .next-btn {
     display: block;
@@ -285,11 +251,10 @@
     cursor: pointer;
     transition: transform 0.1s, box-shadow 0.1s;
     box-shadow: 0 5px 0 #8a6800;
-    letter-spacing: 0.5px;
   }
   .next-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #8a6800; }
   .next-btn:active { transform: translateY(2px); box-shadow: 0 3px 0 #8a6800; }
-  .next-btn:disabled { opacity: 0.4; cursor: default; transform: none; }
+  .next-btn:disabled { opacity: 0.4; cursor: default; transform: none; box-shadow: 0 5px 0 #8a6800; }
 
   /* ── COMPLETE SCREEN ── */
   .complete-card {
@@ -455,13 +420,14 @@
       </div>
     </div>
 
-    <div class="word-card" id="wordCard">
+    <div class="word-card">
       <div class="word-display" id="wordDisplay"></div>
-      <div class="word-hint" id="wordHint"></div>
     </div>
 
-    <div class="answer-options" id="answerOptions"></div>
-    <div class="feedback-msg" id="feedbackMsg"></div>
+    <div class="judge-btns">
+      <button class="judge-btn no"  onclick="judge(false)">❌ Not yet</button>
+      <button class="judge-btn yes" onclick="judge(true)">✅ Got it!</button>
+    </div>
     <button class="next-btn" id="nextBtn" onclick="nextQuestion()" disabled>Next Word →</button>
   </div>
 
@@ -515,7 +481,6 @@ let currentLevel = 1;
 let quizWords = [];
 let quizIndex = 0;
 let quizCorrect = 0;
-let answered = false;
 
 let fcLevel = 0;
 let fcPool = [];
@@ -569,73 +534,25 @@ function startQuiz(level) {
   showQuestion();
 }
 
-function getAllWords(excludeLevel) {
-  let all = [];
-  for (let l = 1; l <= 4; l++) {
-    if (l !== excludeLevel) all = all.concat(WORDS[l]);
-  }
-  return all;
-}
-
 function showQuestion() {
-  answered = false;
   const word = quizWords[quizIndex];
   const total = quizWords.length;
 
   document.getElementById('progressFill').style.width = `${(quizIndex / total) * 100}%`;
   document.getElementById('progressLabel').textContent = `${quizIndex + 1} of ${total}`;
   document.getElementById('wordDisplay').textContent = word;
-  document.getElementById('wordHint').textContent = `${word.length} letter${word.length !== 1 ? 's' : ''}`;
-  document.getElementById('wordCard').className = 'word-card';
-  document.getElementById('feedbackMsg').textContent = '';
-  document.getElementById('feedbackMsg').className = 'feedback-msg';
   document.getElementById('nextBtn').disabled = true;
 
-  // Build 4 choices: correct + 3 distractors from other words
-  const pool = shuffle(getAllWords(currentLevel).filter(w => w !== word));
-  const distractors = pool.slice(0, 3);
-  const choices = shuffle([word, ...distractors]);
-
-  const container = document.getElementById('answerOptions');
-  container.innerHTML = '';
-  choices.forEach(ch => {
-    const btn = document.createElement('button');
-    btn.className = 'opt-btn';
-    btn.textContent = ch;
-    btn.onclick = () => checkAnswer(ch, word, btn);
-    container.appendChild(btn);
-  });
+  document.querySelectorAll('.judge-btn').forEach(b => b.disabled = false);
 }
 
-function checkAnswer(chosen, correct, btn) {
-  if (answered) return;
-  answered = true;
-
-  const card = document.getElementById('wordCard');
-  const feedback = document.getElementById('feedbackMsg');
-  const allBtns = document.querySelectorAll('.opt-btn');
-
-  allBtns.forEach(b => {
-    b.disabled = true;
-    if (b.textContent === correct) b.classList.add('correct-ans');
-  });
-
-  if (chosen === correct) {
+function judge(correct) {
+  if (correct) {
     quizCorrect++;
     totalStars++;
-    card.classList.add('correct');
-    feedback.textContent = ['🌟 Yes!', '⭐ Great!', '🎉 Awesome!', '✨ Perfect!'][Math.floor(Math.random()*4)];
-    feedback.className = 'feedback-msg good';
-    btn.classList.remove('correct-ans');
-    btn.style.background = 'rgba(76,175,80,0.4)';
     updateStars();
-  } else {
-    card.classList.add('wrong');
-    feedback.textContent = ['Keep trying! 💪', 'Almost! 🔍', 'Look again! 👀'][Math.floor(Math.random()*3)];
-    feedback.className = 'feedback-msg bad';
-    btn.classList.add('wrong-ans');
   }
-
+  document.querySelectorAll('.judge-btn').forEach(b => b.disabled = true);
   document.getElementById('nextBtn').disabled = false;
 }
 
