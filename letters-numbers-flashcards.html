@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ABC 123 Adventure!</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #1a2744;
+    --yellow: #FFD93D;
+    --blue: #6EC6F5;
+    --white: #F0F8FF;
+    --green: #4CAF50;
+    --red: #E05C5C;
+    --purple: #9B6FD4;
+    --orange: #FF8C42;
+  }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--navy);
+    color: var(--white);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  body::before {
+    content: '★ ✦ ★ ✦ ★ ✦ ★ ✦ ★ ✦ ★ ✦ ★ ✦ ★ ✦ ★';
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    font-size: 14px;
+    color: rgba(255,217,61,0.12);
+    letter-spacing: 18px;
+    line-height: 2.4;
+    pointer-events: none;
+    z-index: 0;
+    word-break: break-all;
+  }
+
+  #confetti-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  header {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 24px 16px 8px;
+  }
+
+  h1 {
+    font-size: clamp(28px, 6vw, 48px);
+    font-weight: 900;
+    color: var(--yellow);
+    text-shadow: 0 3px 0 #b89820;
+    letter-spacing: -0.5px;
+  }
+
+  .tabs {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    gap: 12px;
+    margin: 16px 0 24px;
+    padding: 0 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .tab-btn {
+    padding: 10px 22px;
+    border-radius: 999px;
+    border: 3px solid transparent;
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    background: rgba(255,255,255,0.08);
+    color: var(--white);
+    transition: all 0.15s;
+  }
+  .tab-btn:hover { background: rgba(255,255,255,0.15); }
+  .tab-btn.active { background: var(--yellow); color: var(--navy); border-color: #b89820; }
+
+  main {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 680px;
+    padding: 0 16px 40px;
+  }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── DECK SELECT ── */
+  .deck-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .deck-card {
+    border-radius: 20px;
+    padding: 32px 16px 40px;
+    text-align: center;
+    cursor: pointer;
+    border: 4px solid transparent;
+    transition: transform 0.15s, box-shadow 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .deck-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+  .deck-card.letters { background: linear-gradient(135deg, #2196F3, #1565c0); border-color: #64b5f6; }
+  .deck-card.numbers { background: linear-gradient(135deg, #FF8C42, #e65100); border-color: #ffb74d; }
+
+  .deck-card .word-count {
+    position: absolute;
+    top: 10px; right: 12px;
+    font-size: 12px;
+    font-weight: 800;
+    background: rgba(0,0,0,0.25);
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+  .deck-card .badge { font-size: 48px; display: block; margin-bottom: 10px; }
+  .deck-card h2 { font-size: 24px; font-weight: 900; }
+  .deck-card p { font-size: 14px; opacity: 0.85; margin-top: 4px; }
+
+  .done-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    border-radius: 16px;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--yellow);
+    letter-spacing: 1px;
+    pointer-events: none;
+  }
+  .deck-card.done { cursor: default; }
+  .deck-card.done:hover { transform: none; box-shadow: none; }
+  .deck-card.done .done-overlay { display: flex; }
+
+  /* ── PLAY SCREEN ── */
+  .play-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .back-btn {
+    background: rgba(255,255,255,0.1);
+    border: 2px solid rgba(255,255,255,0.2);
+    color: var(--white);
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .back-btn:hover { background: rgba(255,255,255,0.2); }
+
+  .progress-wrap { flex: 1; margin: 0 16px; }
+  .progress-bar {
+    height: 12px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--yellow);
+    border-radius: 999px;
+    transition: width 0.4s ease;
+  }
+  .progress-label {
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    margin-top: 4px;
+    opacity: 0.8;
+  }
+
+  /* Big tappable flashcard, the whole thing is the "next" button */
+  .big-card {
+    background: rgba(255,255,255,0.06);
+    border: 4px solid rgba(255,255,255,0.15);
+    border-radius: 32px;
+    padding: 50px 24px;
+    text-align: center;
+    margin-bottom: 24px;
+    cursor: pointer;
+    transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+  }
+  .big-card:hover { transform: scale(1.02); box-shadow: 0 12px 32px rgba(0,0,0,0.3); }
+  .big-card:active { transform: scale(0.97); background: rgba(255,255,255,0.1); }
+
+  .big-card .char-display {
+    font-size: clamp(110px, 32vw, 220px);
+    font-weight: 900;
+    color: var(--yellow);
+    line-height: 1;
+    text-shadow: 0 6px 0 #8a6800;
+  }
+  .big-card.numbers .char-display { color: var(--orange); text-shadow: 0 6px 0 #8a4000; }
+
+  .big-card .tap-hint {
+    font-size: 16px;
+    opacity: 0.5;
+    font-weight: 700;
+    margin-top: 18px;
+    letter-spacing: 1px;
+  }
+
+  /* ── COMPLETE SCREEN ── */
+  .complete-card {
+    background: rgba(255,255,255,0.06);
+    border: 3px solid rgba(255,217,61,0.3);
+    border-radius: 28px;
+    padding: 40px 24px;
+    text-align: center;
+  }
+  .complete-card .big-emoji { font-size: 72px; display: block; margin-bottom: 16px; }
+  .complete-card h2 { font-size: 36px; font-weight: 900; color: var(--yellow); margin-bottom: 8px; }
+  .complete-card p { font-size: 18px; opacity: 0.85; margin-bottom: 24px; }
+  .score-display { font-size: 52px; font-weight: 900; color: var(--yellow); }
+  .score-display span { font-size: 22px; opacity: 0.7; }
+
+  .next-btn {
+    display: block;
+    width: 100%;
+    padding: 18px;
+    border-radius: 18px;
+    border: none;
+    background: var(--yellow);
+    color: var(--navy);
+    font-family: 'Nunito', sans-serif;
+    font-size: 20px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    box-shadow: 0 5px 0 #8a6800;
+  }
+  .next-btn:hover { transform: translateY(-2px); box-shadow: 0 7px 0 #8a6800; }
+  .next-btn:active { transform: translateY(2px); box-shadow: 0 3px 0 #8a6800; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<header>
+  <h1>🔤 ABC 123 Adventure!</h1>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="showScreen('decks')">🎴 Play</button>
+</div>
+
+<main>
+
+  <!-- DECK SELECT -->
+  <div class="screen active" id="screen-decks">
+    <div class="deck-grid">
+
+      <div class="deck-card letters" id="card-letters" onclick="startDeck('letters')">
+        <div class="word-count">26 letters</div>
+        <span class="badge">🔤</span>
+        <h2>Letters</h2>
+        <p>A to Z</p>
+        <div class="done-overlay">⭐ Done today!</div>
+      </div>
+
+      <div class="deck-card numbers" id="card-numbers" onclick="startDeck('numbers')">
+        <div class="word-count">9 numbers</div>
+        <span class="badge">🔢</span>
+        <h2>Numbers</h2>
+        <p>1 to 9</p>
+        <div class="done-overlay">⭐ Done today!</div>
+      </div>
+
+    </div>
+    <div style="text-align:center; margin-top:20px;">
+      <button onclick="resetToday()" style="background:none; border:none; color:rgba(255,255,255,0.25); font-family:'Nunito',sans-serif; font-size:12px; font-weight:700; cursor:pointer; letter-spacing:1px;">⚙ reset today</button>
+    </div>
+  </div>
+
+  <!-- PLAY SCREEN -->
+  <div class="screen" id="screen-play">
+    <div class="play-header">
+      <button class="back-btn" onclick="goBack()">← Back</button>
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        <div class="progress-label" id="progressLabel"></div>
+      </div>
+    </div>
+    <div class="big-card" id="bigCard" onclick="nextCard()">
+      <div class="char-display" id="charDisplay"></div>
+      <div class="tap-hint">tap the card for next!</div>
+    </div>
+  </div>
+
+  <!-- COMPLETE SCREEN -->
+  <div class="screen" id="screen-complete">
+    <div class="complete-card">
+      <span class="big-emoji">🏆</span>
+      <h2>You did it!</h2>
+      <div class="score-display" id="completeScore"></div>
+      <p id="completeMsg" style="margin-top:12px"></p>
+      <button class="next-btn" onclick="goBack()" style="margin-top:24px">Back to Decks</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+const DECKS = {
+  letters: ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'],
+  numbers: Array.from({length: 9}, (_, i) => String(i + 1))
+};
+
+const MINUTES_PER_DECK = 15;
+
+let completedDecks = new Set();
+let currentDeck = null;
+let deckCards = [];
+let cardIndex = 0;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById('screen-' + name).classList.add('active');
+}
+
+function startDeck(deck) {
+  if (completedDecks.has(deck)) return;
+  currentDeck = deck;
+  deckCards = shuffle(DECKS[deck]);
+  cardIndex = 0;
+  document.getElementById('bigCard').classList.toggle('numbers', deck === 'numbers');
+  showScreen('play');
+  showCard();
+}
+
+function showCard() {
+  var ch = deckCards[cardIndex];
+  var total = deckCards.length;
+  document.getElementById('progressFill').style.width = ((cardIndex / total) * 100) + '%';
+  document.getElementById('progressLabel').textContent = (cardIndex + 1) + ' of ' + total;
+  document.getElementById('charDisplay').textContent = ch;
+}
+
+function nextCard() {
+  cardIndex++;
+  if (cardIndex >= deckCards.length) {
+    showComplete();
+  } else {
+    showCard();
+  }
+}
+
+function goBack() {
+  showScreen('decks');
+}
+
+// ── PERSISTENCE ───────────────────────────────────────────────
+function todayKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function saveProgress() {
+  localStorage.setItem('abc123_date', todayKey());
+  localStorage.setItem('abc123_done', JSON.stringify([...completedDecks]));
+}
+
+function loadProgress() {
+  var savedDate = localStorage.getItem('abc123_date');
+  if (savedDate === todayKey()) {
+    var done = JSON.parse(localStorage.getItem('abc123_done') || '[]');
+    done.forEach(function(d) {
+      completedDecks.add(d);
+      var el = document.getElementById('card-' + d);
+      if (el) el.classList.add('done');
+    });
+  } else {
+    localStorage.removeItem('abc123_date');
+    localStorage.removeItem('abc123_done');
+  }
+}
+
+function resetToday() {
+  if (confirm('Reset all completions for today?')) {
+    localStorage.removeItem('abc123_date');
+    localStorage.removeItem('abc123_done');
+    completedDecks.clear();
+    ['letters','numbers'].forEach(function(d) {
+      document.getElementById('card-' + d).classList.remove('done');
+    });
+  }
+}
+
+function showComplete() {
+  completedDecks.add(currentDeck);
+  document.getElementById('card-' + currentDeck).classList.add('done');
+  saveProgress();
+  document.getElementById('completeScore').innerHTML = '+' + MINUTES_PER_DECK + '<span> minutes!</span>';
+  document.getElementById('completeMsg').textContent = deckCards.length + ' ' + currentDeck + ' down — screen time earned! 🎉';
+  showScreen('complete');
+  launchConfetti();
+}
+
+// ── CONFETTI ──────────────────────────────────────────────────
+(function() {
+  var canvas = document.getElementById('confetti-canvas');
+  var ctx = canvas.getContext('2d');
+  var particles = [];
+  var animId = null;
+  var COLORS = ['#FFD93D','#6EC6F5','#4CAF50','#FF8C42','#9B6FD4','#F0F8FF','#E05C5C'];
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function randomBetween(a, b) { return a + Math.random() * (b - a); }
+
+  function launch() {
+    resize();
+    particles = [];
+    for (var i = 0; i < 120; i++) {
+      particles.push({
+        x: canvas.width * randomBetween(0.3, 0.7),
+        y: canvas.height * -0.05,
+        vx: randomBetween(-6, 6),
+        vy: randomBetween(2, 9),
+        w: randomBetween(8, 14),
+        h: randomBetween(5, 9),
+        color: COLORS[Math.floor(Math.random() * COLORS.length)],
+        angle: randomBetween(0, Math.PI * 2),
+        spin: randomBetween(-0.18, 0.18),
+        gravity: randomBetween(0.18, 0.28),
+        opacity: 1
+      });
+    }
+    if (animId) cancelAnimationFrame(animId);
+    var start = null;
+    var DURATION = 3200;
+    function step(ts) {
+      if (!start) start = ts;
+      var elapsed = ts - start;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      var allGone = true;
+      for (var i = 0; i < particles.length; i++) {
+        var p = particles[i];
+        p.vy += p.gravity;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.angle += p.spin;
+        p.opacity = Math.max(0, 1 - (elapsed / DURATION));
+        if (p.y < canvas.height + 20) allGone = false;
+        ctx.save();
+        ctx.globalAlpha = p.opacity;
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.angle);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+      }
+      if (!allGone && elapsed < DURATION) {
+        animId = requestAnimationFrame(step);
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        animId = null;
+      }
+    }
+    animId = requestAnimationFrame(step);
+  }
+
+  window.launchConfetti = launch;
+})();
+
+loadProgress();
+</script>
+</body>
+</html>
